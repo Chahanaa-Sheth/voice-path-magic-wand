@@ -63,54 +63,56 @@ const Dashboard: React.FC<DashboardProps> = ({ className = '' }) => {
   };
 
   return (
-    <div className={`fixed bottom-0 left-0 right-0 w-full grid grid-cols-5 p-2 bg-secondary/90 backdrop-blur-md rounded-t-2xl shadow-lg ${className}`}>
+    <div className={`fixed bottom-0 left-0 right-0 w-full grid grid-cols-3 sm:grid-cols-5 p-2 bg-secondary/90 backdrop-blur-md rounded-t-2xl shadow-lg ${className}`}>
+      {/* On small screens, we'll show 3 columns instead of 5 */}
       <Button 
         variant="ghost" 
-        className="flex flex-col items-center justify-center h-16 w-full gap-1 rounded-xl"
+        className="flex flex-col items-center justify-center h-14 sm:h-16 w-full gap-1 rounded-xl"
         onClick={handleNavigationStart}
         aria-label={t('startNavigation')}
       >
-        <Navigation size={24} className="text-primary" />
+        <Navigation size={20} className="text-primary sm:size-24" />
         <span className="text-xs whitespace-nowrap">{t('startNavigation')}</span>
       </Button>
 
       <Button 
         variant="ghost" 
-        className="flex flex-col items-center justify-center h-16 w-full gap-1 rounded-xl"
+        className="flex flex-col items-center justify-center h-14 sm:h-16 w-full gap-1 rounded-xl"
         onClick={handleRepeatPrompt}
         aria-label={t('repeatPrompt')}
       >
-        <Volume2 size={24} className="text-primary" />
+        <Volume2 size={20} className="text-primary sm:size-24" />
         <span className="text-xs whitespace-nowrap">{t('repeatPrompt')}</span>
       </Button>
 
       <Button 
         variant="ghost" 
-        className="flex flex-col items-center justify-center h-16 w-full gap-1 rounded-xl"
+        className="flex flex-col items-center justify-center h-14 sm:h-16 w-full gap-1 rounded-xl"
         onClick={handleVoiceCommand}
         aria-label={t('voiceCommand')}
       >
-        <Mic size={24} className="text-primary" />
+        <Mic size={20} className="text-primary sm:size-24" />
         <span className="text-xs whitespace-nowrap">{t('voiceCommand')}</span>
       </Button>
 
+      {/* Hide these buttons on small screens */}
       <Button 
         variant="ghost" 
-        className="flex flex-col items-center justify-center h-16 w-full gap-1 rounded-xl"
+        className="hidden sm:flex flex-col items-center justify-center h-14 sm:h-16 w-full gap-1 rounded-xl"
         onClick={handleVolunteerMode}
         aria-label={t('volunteerMode')}
       >
-        <Users size={24} className="text-primary" />
+        <Users size={20} className="text-primary sm:size-24" />
         <span className="text-xs whitespace-nowrap">{t('volunteerMode')}</span>
       </Button>
 
       <Button 
         variant="ghost" 
-        className="flex flex-col items-center justify-center h-16 w-full gap-1 rounded-xl"
+        className="hidden sm:flex flex-col items-center justify-center h-14 sm:h-16 w-full gap-1 rounded-xl"
         onClick={handleSettings}
         aria-label={t('settings')}
       >
-        <Settings size={24} className="text-primary" />
+        <Settings size={20} className="text-primary sm:size-24" />
         <span className="text-xs whitespace-nowrap">{t('settings')}</span>
       </Button>
     </div>

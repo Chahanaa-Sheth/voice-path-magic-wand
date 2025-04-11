@@ -50,6 +50,7 @@ const Camera: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-20">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       {error ? (
         <div className="flex h-full items-center justify-center bg-background/90 p-4">
           <p className="text-lg text-red-500">{t(error)}</p>
@@ -63,9 +64,9 @@ const Camera: React.FC = () => {
           aria-label={t('cameraFeed')}
         />
       )}
-      <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+      <div className="absolute bottom-20 sm:bottom-24 left-0 right-0 flex justify-center">
         <button 
-          className="rounded-full bg-primary p-4 text-primary-foreground shadow-lg"
+          className="rounded-full bg-primary p-3 sm:p-4 text-primary-foreground shadow-lg"
           onClick={() => document.dispatchEvent(new CustomEvent('stopNavigation'))}
           aria-label={t('stopNavigation')}
         >
