@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNavigation } from '@/contexts/NavigationContext';
@@ -6,7 +5,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
 import { 
   Navigation, 
-  VolumeUp, 
+  Volume2, // Replace VolumeUp with Volume2 
   Mic, 
   Users, 
   Settings 
@@ -81,7 +80,7 @@ const Dashboard: React.FC<DashboardProps> = ({ className = '' }) => {
         onClick={handleRepeatPrompt}
         aria-label={t('repeatPrompt')}
       >
-        <VolumeUp size={24} className="text-primary" />
+        <Volume2 size={24} className="text-primary" />
         <span className="text-xs whitespace-nowrap">{t('repeatPrompt')}</span>
       </Button>
 
