@@ -190,7 +190,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
   
   const startNavigation = useCallback(() => {
     setMode('navigating');
-    speak(t('startNavigation'), true);
+    speak(t('startNavigation'), language);
     
     if (companion) {
       companion.startCompanionMode();
@@ -203,18 +203,18 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
           toast.error('Could not access camera for navigation assistance');
         });
     }
-  }, [speak, companion, t]);
+  }, [speak, companion, t, language]);
   
   const stopNavigation = useCallback(() => {
     if (mode !== 'idle') {
       setMode('idle');
-      speak('Navigation stopped', true);
+      speak('Navigation stopped', language);
       
       if (companion) {
         companion.stopCompanionMode();
       }
     }
-  }, [mode, speak, companion]);
+  }, [mode, speak, companion, language]);
   
   const startTraining = useCallback(() => {
     setMode('training');

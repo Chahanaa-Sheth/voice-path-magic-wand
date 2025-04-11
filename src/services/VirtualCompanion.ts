@@ -19,7 +19,6 @@ class VirtualCompanion {
     this.language = options.lang;
     this.onMessage = options.onMessage;
     
-    // Initialize multilingual message pools
     this.motivationalLines = {
       'en-US': [
         "You're doing great!",
@@ -31,9 +30,9 @@ class VirtualCompanion {
       ],
       'hi-IN': [
         "आप बढ़िया कर रहे हैं!",
-        "बस 100 मीटर और, चैंप।",
+        "बस 100 मीटर और, चैंप.",
         "सांस लेना याद रखें, आप सुरक्षित हैं।",
-        "मैं यहां आपके साथ हूं।",
+        "मैं यहां आपके साथ हूं.",
         "आप कर सकते हैं!",
         "चलते रहो — आप सोचते हैं उससे ज्यादा मजबूत हो।"
       ],
@@ -57,14 +56,14 @@ class VirtualCompanion {
         "আপনি দারুণ করছেন!",
         "মাত্র 100 মিটার বাকি, চ্যাম্পিয়ন।",
         "শ্বাস নিতে মনে রাখবেন, আপনি নিরাপদ।",
-        "আমি এখানে আপনার সাথে আছি।",
-        "আপনি এটা করতে পারেন!",
+        "আমি এখানে আপনার সাথে আছি.",
+        "আপনি ইतটা চেয়ে করতে পারেন!",
         "চালিয়ে যান — আপনি ভাবেন তার চেয়ে শক্তিশালী।"
       ],
       'kn-IN': [
         "ನೀವು ಉತ್ತಮವಾಗಿ ಮಾಡುತ್ತಿದ್ದೀರಿ!",
         "ಕೇವಲ 100 ಮೀಟರ್ ಹೆಚ್ಚು, ಚಾಂಪಿಯನ್.",
-        "ಉಸಿರಾಡಲು ನೆನಪಿಡಿ, ನೀವು ಸುರಕ್ಷಿತವಾಗಿದ್ದೀರಿ.",
+        "ಉಸಿರ���ಡಲು ನೆನಪಿಡಿ, ನೀವು ಸುರಕ್ಷಿತವಾಗಿದ್ದೀರಿ.",
         "ನಾನು ಇಲ್ಲಿ ನಿಮ್ಮ ಜೊತೆಗಿದ್ದೇನೆ.",
         "ನೀವು ಇದನ್ನು ಮಾಡಬಹುದು!",
         "ಮುಂದುವರಿಸಿ — ನೀವು ಯೋಚಿಸುವುದಕ್ಕಿಂತ ನೀವು ಬಲಶಾಲಿ."
@@ -104,14 +103,11 @@ class VirtualCompanion {
       ]
     };
     
-    // Load available voices when possible
     if (window.speechSynthesis) {
-      // Some browsers need a small delay to load voices
       setTimeout(() => {
         this.voices = window.speechSynthesis.getVoices();
       }, 200);
       
-      // For browsers that load voices asynchronously
       window.speechSynthesis.onvoiceschanged = () => {
         this.voices = window.speechSynthesis.getVoices();
       };
@@ -125,12 +121,23 @@ class VirtualCompanion {
   private findVoiceForLanguage(lang: SupportedLanguage): SpeechSynthesisVoice | null {
     if (!window.speechSynthesis || this.voices.length === 0) return null;
     
-    // Try to find a voice that matches the language
+    const languageVoiceMap: Record<SupportedLanguage, string[]> = {
+      'en-US': ['en-', 'Google US English'],
+      'hi-IN': ['hi-', 'Google Hindi'],
+      'ta-IN': ['ta-', 'Google Tamil'],
+      'te-IN': ['te-', 'Google Telugu'],
+      'bn-IN': ['bn-', 'Google Bengali'],
+      'kn-IN': ['kn-', 'Google Kannada']
+    };
+
+    const langCodes = languageVoiceMap[lang] || [];
+    
     let matchingVoice = this.voices.find(voice => 
-      voice.lang.toLowerCase().includes(lang.toLowerCase().split('-')[0])
+      langCodes.some(code => 
+        voice.lang.toLowerCase().startsWith(code.toLowerCase())
+      )
     );
     
-    // If no specific voice found, try to find a more general match
     if (!matchingVoice) {
       const langCode = lang.split('-')[0];
       matchingVoice = this.voices.find(voice => 
@@ -146,7 +153,6 @@ class VirtualCompanion {
     
     const speechLang = lang || this.language;
     
-    // If priority is true, cancel any ongoing speech
     if (priority && window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
     }
@@ -157,11 +163,10 @@ class VirtualCompanion {
     
     const utterance = new SpeechSynthesisUtterance(message);
     utterance.lang = speechLang;
-    utterance.pitch = 1.1; // more friendly tone
+    utterance.pitch = 1.1;
     utterance.rate = 0.95;
     utterance.volume = 1;
     
-    // Try to find a voice for the specific language
     const voice = this.findVoiceForLanguage(speechLang);
     if (voice) {
       utterance.voice = voice;
@@ -199,16 +204,13 @@ class VirtualCompanion {
       return true;
     }
     
-    return false; // Command not handled
+    return false;
   }
   
   public startCompanionMode(intervalMs: number = 30000): void {
-    // Clear any existing interval
     this.stopCompanionMode();
     
-    // Start new interval for occasional motivation
     this.companionInterval = window.setInterval(() => {
-      // Only speak if not already speaking and it's been more than 20 seconds since last message
       const timeSinceLastMessage = Date.now() - this.lastMessageTime;
       if (!this.isSpeaking && timeSinceLastMessage > 20000) {
         this.speakRandomMotivation();

@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export type SupportedLanguage = 'en-US' | 'hi-IN' | 'ta-IN' | 'te-IN' | 'bn-IN' | 'kn-IN';
@@ -75,6 +74,9 @@ const translationData: Record<SupportedLanguage, Record<string, string>> = {
     help: "உதவி",
     obstacleAhead: "முன்னே ஒரு தடுப்பு உள்ளது. இடப்புறமாக செல்லவும்.",
     keepGoing: "நீங்கள் நன்றாக செய்கிறீர்கள்! தொடர்ந்து செல்லுங்கள்.",
+    chooseLanguage: "உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்",
+    
+    // Add more Tamil translations as needed
     motivational1: "நீங்கள் அருமையாக செய்கிறீர்கள்!",
     motivational2: "இன்னும் 100 மீட்டர் மட்டுமே, சாம்பியன்.",
     motivational3: "மூச்சு விடுவதை நினைவில் கொள்ளுங்கள், நீங்கள் பாதுகாப்பாக இருக்கிறீர்கள்.",
@@ -83,8 +85,7 @@ const translationData: Record<SupportedLanguage, Record<string, string>> = {
     motivational6: "தொடர்ந்து செல்லுங்கள் — நீங்கள் நினைப்பதை விட வலிமையானவர்.",
     joke1: "ஸ்மார்ட்போன் ஏன் சிகிச்சைக்கு சென்றது? அது தனது தொடு உணர்வை இழந்தது!",
     joke2: "பாடும் கணினியை என்ன அழைப்பீர்கள்? ஒரு டெல்!",
-    joke3: "கணித புத்தகம் ஏன் சோகமாக இருந்தது? அதற்கு பல பிரச்சனைகள் இருந்தன.",
-    chooseLanguage: "உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்",
+    joke3: "கணித புத்தகம் ஏன் சோகமாக இருந்தது? அதற்கு பல பிரச்சனைகள் இருந்தன."
   },
   'te-IN': {
     welcome: "పాత్‌సెన్స్‌కు స్వాగతం, మీ నావిగేషన్ సహాయకుడు.",
