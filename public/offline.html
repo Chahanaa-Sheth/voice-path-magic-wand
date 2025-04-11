@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PathSense - Offline</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #1A1F2C;
+      color: #ffffff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 1rem;
+      text-align: center;
+    }
+    
+    .icon {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1.5rem;
+    }
+    
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      margin-bottom: 1.5rem;
+      max-width: 400px;
+      line-height: 1.5;
+    }
+    
+    button {
+      background-color: #9b87f5;
+      color: #ffffff;
+      border: none;
+      padding: 1rem 1.5rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="#9b87f5">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636a9 9 0 010 12.728m-3.536-3.536a3 3 0 010-5.656m2.121-2.121a6 6 0 010 9.9M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6 17l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" />
+  </svg>
+  
+  <h1>You're currently offline</h1>
+  <p>PathSense requires an internet connection for full functionality. Please check your connection and try again.</p>
+  <button onclick="window.location.reload()">Try Again</button>
+
+  <script>
+    window.addEventListener('online', () => window.location.reload());
+  </script>
+</body>
+</html>
