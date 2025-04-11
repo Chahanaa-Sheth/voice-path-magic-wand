@@ -1,4 +1,3 @@
-
 import { SupportedLanguage } from "@/contexts/LanguageContext";
 
 interface VirtualCompanionOptions {
@@ -14,6 +13,7 @@ class VirtualCompanion {
   private isSpeaking: boolean = false;
   private onMessage?: (message: string) => void;
   private companionInterval: number | null = null;
+  private voices: SpeechSynthesisVoice[] = [];
   
   constructor(options: VirtualCompanionOptions) {
     this.language = options.lang;
@@ -103,10 +103,42 @@ class VirtualCompanion {
         "ಗಣಿತ ಪುಸ್ತಕ ಏಕೆ ದುಃಖಿತವಾಗಿತ್ತು? ಅದಕ್ಕೆ ತುಂಬಾ ಸಮಸ್ಯೆಗಳಿದ್ದವು."
       ]
     };
+    
+    // Load available voices when possible
+    if (window.speechSynthesis) {
+      // Some browsers need a small delay to load voices
+      setTimeout(() => {
+        this.voices = window.speechSynthesis.getVoices();
+      }, 200);
+      
+      // For browsers that load voices asynchronously
+      window.speechSynthesis.onvoiceschanged = () => {
+        this.voices = window.speechSynthesis.getVoices();
+      };
+    }
   }
   
   public setLanguage(lang: SupportedLanguage): void {
     this.language = lang;
+  }
+  
+  private findVoiceForLanguage(lang: SupportedLanguage): SpeechSynthesisVoice | null {
+    if (!window.speechSynthesis || this.voices.length === 0) return null;
+    
+    // Try to find a voice that matches the language
+    let matchingVoice = this.voices.find(voice => 
+      voice.lang.toLowerCase().includes(lang.toLowerCase().split('-')[0])
+    );
+    
+    // If no specific voice found, try to find a more general match
+    if (!matchingVoice) {
+      const langCode = lang.split('-')[0];
+      matchingVoice = this.voices.find(voice => 
+        voice.lang.toLowerCase().startsWith(langCode.toLowerCase())
+      );
+    }
+    
+    return matchingVoice || null;
   }
   
   public speak(message: string, lang?: SupportedLanguage, priority: boolean = false): void {
@@ -128,6 +160,12 @@ class VirtualCompanion {
     utterance.pitch = 1.1; // more friendly tone
     utterance.rate = 0.95;
     utterance.volume = 1;
+    
+    // Try to find a voice for the specific language
+    const voice = this.findVoiceForLanguage(speechLang);
+    if (voice) {
+      utterance.voice = voice;
+    }
     
     utterance.onstart = () => {
       this.isSpeaking = true;

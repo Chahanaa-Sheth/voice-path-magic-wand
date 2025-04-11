@@ -39,7 +39,7 @@ const LanguageSelector: React.FC = () => {
     
     // Speak in the new language
     setTimeout(() => {
-      speak(`Selected ${langInfo?.name}. ${langInfo?.nativeName}`, lang);
+      speak(`Selected ${langInfo?.name}. ${langInfo?.nativeName}`, lang, true); // Fixed boolean parameter
       setTimeout(() => navigate('/'), 2000);
     }, 500);
   };

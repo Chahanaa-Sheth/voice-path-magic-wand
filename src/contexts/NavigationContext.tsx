@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { toast } from 'sonner';
 import VirtualCompanion from '@/services/VirtualCompanion';
@@ -17,7 +16,7 @@ interface NavigationContextType {
   startRecording: () => void;
   startListening: () => void;
   stopListening: () => void;
-  speak: (text: string, priority?: boolean) => void;
+  speak: (text: string, lang?: SupportedLanguage, priority?: boolean) => void;
   processSpeech: (command: string) => void;
   companion: VirtualCompanion | null;
 }
@@ -42,16 +41,13 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
   const [transcript, setTranscript] = useState('');
   const [isSpeaking, setIsSpeaking] = useState(false);
   
-  // Speech recognition setup
   const [recognition, setRecognition] = useState<any>(null);
   const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
   const [companion, setCompanion] = useState<VirtualCompanion | null>(null);
   
   const { language, t } = useLanguage();
   
-  // Initialize speech APIs and companion
   useEffect(() => {
-    // Check if SpeechRecognition is available
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
       const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       const recognitionInstance = new SpeechRecognitionAPI();
@@ -81,11 +77,9 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
       toast.error('Speech recognition is not supported in this browser');
     }
     
-    // Set up speech synthesis
     if ('speechSynthesis' in window) {
       setSpeechSynthesis(window.speechSynthesis);
       
-      // Initialize VirtualCompanion
       const newCompanion = new VirtualCompanion({
         lang: language,
         onMessage: (message) => console.log('Companion says:', message)
@@ -95,7 +89,6 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
       toast.error('Speech synthesis is not supported in this browser');
     }
     
-    // Clean up
     return () => {
       if (recognition) {
         recognition.abort();
@@ -106,7 +99,6 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     };
   }, []);
   
-  // Update recognition and companion language when language changes
   useEffect(() => {
     if (recognition) {
       recognition.lang = language;
@@ -137,21 +129,20 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     }
   }, [recognition]);
   
-  const speak = useCallback((text: string, priority = false) => {
+  const speak = useCallback((text: string, lang?: SupportedLanguage, priority: boolean = false) => {
+    const speechLang = lang || language;
+    
     if (companion) {
-      companion.speak(text, language, priority);
+      companion.speak(text, speechLang, priority);
       setIsSpeaking(true);
-      // We'll rely on companion's onend event to update isSpeaking,
-      // but add a backup in case that fails
       setTimeout(() => setIsSpeaking(false), 10000);
     } else if (speechSynthesis) {
-      // Fallback to direct speech synthesis if companion isn't available
       if (priority) {
         speechSynthesis.cancel();
       }
       
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = language;
+      utterance.lang = speechLang;
       utterance.rate = 1;
       utterance.pitch = 1;
       utterance.volume = 1;
@@ -170,12 +161,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
   const processSpeech = useCallback((command: string) => {
     console.info('Processing speech command:', command);
     
-    // First try to process with companion
     if (companion && companion.processCommand(command)) {
-      return; // Command was handled by companion
+      return;
     }
     
-    // Process wake word
     if (command.includes('hey path sense') || command.includes('hey pathsense')) {
       if (!isListening) {
         startListening();
@@ -184,7 +173,6 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
       return;
     }
     
-    // Main commands
     if (command.includes('start navigation')) {
       startNavigation();
     } else if (command.includes('stop navigation') || command.includes('end navigation')) {
@@ -204,12 +192,10 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     setMode('navigating');
     speak(t('startNavigation'), true);
     
-    // Start companion mode
     if (companion) {
       companion.startCompanionMode();
     }
     
-    // Request permission for camera if needed
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
         .catch(error => {
@@ -224,7 +210,6 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
       setMode('idle');
       speak('Navigation stopped', true);
       
-      // Stop companion mode
       if (companion) {
         companion.stopCompanionMode();
       }
@@ -233,20 +218,19 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
   
   const startTraining = useCallback(() => {
     setMode('training');
-    speak(t('trainingMode'), true);
-  }, [speak, t]);
+    speak(t('trainingMode'), language, true);
+  }, [speak, t, language]);
   
   const startRecording = useCallback(() => {
     setMode('recording');
-    speak(t('recordRoute'), true);
-  }, [speak, t]);
+    speak(t('recordRoute'), language, true);
+  }, [speak, t, language]);
   
-  // Add event listener for wake word via tap (single tap anywhere on screen)
   useEffect(() => {
     const handleTap = () => {
       if (!isListening) {
         startListening();
-        navigator.vibrate?.(100); // Provide haptic feedback if available
+        navigator.vibrate?.(100);
         speak(t('tapAnywhere'));
       }
     };

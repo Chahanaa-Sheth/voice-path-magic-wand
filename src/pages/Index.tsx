@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -10,16 +9,16 @@ import { Link } from 'react-router-dom';
 
 const Index: React.FC = () => {
   const { startNavigation, startTraining, startRecording, speak } = useNavigation();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
-  // Announce the app on initial load
+  // Announce the app on initial load using the current language
   useEffect(() => {
     const timer = setTimeout(() => {
-      speak(t('welcome') + ' ' + t('tapAnywhere'));
+      speak(t('welcome') + ' ' + t('tapAnywhere'), language, true);
     }, 1000);
     
     return () => clearTimeout(timer);
-  }, [speak, t]);
+  }, [speak, t, language]);
   
   return (
     <main className="min-h-screen flex flex-col">
