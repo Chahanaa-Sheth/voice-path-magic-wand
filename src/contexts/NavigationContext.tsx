@@ -182,7 +182,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     } else if (command.includes('record route') || command.includes('start recording')) {
       startRecording();
     } else if (command.includes('help')) {
-      speak('Available commands: Start Navigation, Stop Navigation, Help, Start Training, Record Route');
+      speak('Available commands: Start Nav, Stop Navigation, Help, Start Training, Record Route');
     } else if (command.includes('stop listening')) {
       stopListening();
     }
@@ -193,15 +193,14 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     speak(t('startNavigation'), language);
     
     if (companion) {
-      companion.startCompanionMode();
+      companion.sayGreeting();
     }
     
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-        .catch(error => {
-          console.error('Camera access error:', error);
-          toast.error('Could not access camera for navigation assistance');
-        });
+    // The actual camera initialization will be handled by the Camera component
+    
+    // Add haptic feedback if available
+    if (navigator.vibrate) {
+      navigator.vibrate(200);
     }
   }, [speak, companion, t, language]);
   
