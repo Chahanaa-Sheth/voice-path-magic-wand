@@ -24,8 +24,7 @@ self.addEventListener('install', (event) => {
         return cache.addAll(ASSETS_TO_CACHE);
       })
       .then(() => {
-        // Use self.skipWaiting() from ServiceWorkerGlobalScope
-        return (self as unknown as ServiceWorkerGlobalScope).skipWaiting();
+        return self.skipWaiting();
       })
   );
 });
@@ -45,8 +44,7 @@ self.addEventListener('activate', (event) => {
         })
       );
     }).then(() => {
-      // Use self.clients.claim from ServiceWorkerGlobalScope
-      return (self as unknown as ServiceWorkerGlobalScope).clients.claim();
+      return self.clients.claim();
     })
   );
 });
@@ -97,7 +95,6 @@ self.addEventListener('fetch', (event) => {
 // Skip waiting when receiving a message to update
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
-    // Use self.skipWaiting() from ServiceWorkerGlobalScope
-    (self as unknown as ServiceWorkerGlobalScope).skipWaiting();
+    self.skipWaiting();
   }
 });

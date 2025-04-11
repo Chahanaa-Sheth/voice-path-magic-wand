@@ -6,6 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import CameraView from '@/components/CameraView';
 import StatusBar from '@/components/StatusBar';
 import VoiceTranscript from '@/components/VoiceTranscript';
+import Dashboard from '@/components/Dashboard';
 import { X, MapPin, Compass } from 'lucide-react';
 
 const Navigation: React.FC = () => {
@@ -58,8 +59,8 @@ const Navigation: React.FC = () => {
     <div className="min-h-screen flex flex-col relative">
       <StatusBar />
       
-      {/* Camera View */}
-      <div className="flex-1 relative">
+      {/* Camera View - takes 80% of the screen height */}
+      <div className="flex-1 relative h-[80vh]">
         <CameraView className="absolute inset-0" />
         
         {/* Navigation Overlay */}
@@ -72,26 +73,6 @@ const Navigation: React.FC = () => {
                 <div className="w-3 h-20 bg-primary rounded animate-pulse transform -rotate-45" />
               </div>
             </div>
-          </div>
-          
-          {/* Distance indicator and companion interaction */}
-          <div className="text-center p-6 pointer-events-auto">
-            <div 
-              className="inline-flex items-center bg-secondary/80 backdrop-blur-sm px-4 py-3 rounded-full mb-8"
-              onClick={triggerCompanionMessage}
-            >
-              <MapPin className="mr-2 text-primary" size={24} />
-              <span className="text-xl font-semibold">5 meters ahead</span>
-            </div>
-            
-            {/* Companion trigger */}
-            <button
-              onClick={triggerCompanionMessage}
-              className="block w-full mb-8 p-3 bg-primary/20 border border-primary/30 rounded-lg text-center"
-              aria-label="Get companion message"
-            >
-              {t('keepGoing')}
-            </button>
           </div>
         </div>
       </div>
@@ -106,6 +87,9 @@ const Navigation: React.FC = () => {
           <X size={24} />
         </button>
       </div>
+      
+      {/* Dashboard - Fixed at the bottom 20% of the screen */}
+      <Dashboard className="h-[20vh]" />
       
       <VoiceTranscript />
     </div>
