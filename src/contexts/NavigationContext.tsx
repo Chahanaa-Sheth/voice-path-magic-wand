@@ -1,6 +1,8 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { toast } from 'sonner';
+import VirtualCompanion from '@/services/VirtualCompanion';
+import { useLanguage, SupportedLanguage } from '@/contexts/LanguageContext';
 
 export type NavigationMode = 'idle' | 'navigating' | 'training' | 'recording';
 
@@ -17,6 +19,7 @@ interface NavigationContextType {
   stopListening: () => void;
   speak: (text: string, priority?: boolean) => void;
   processSpeech: (command: string) => void;
+  companion: VirtualCompanion | null;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -40,20 +43,23 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
   const [isSpeaking, setIsSpeaking] = useState(false);
   
   // Speech recognition setup
-  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const [recognition, setRecognition] = useState<any>(null);
   const [speechSynthesis, setSpeechSynthesis] = useState<SpeechSynthesis | null>(null);
+  const [companion, setCompanion] = useState<VirtualCompanion | null>(null);
   
-  // Initialize speech APIs
+  const { language, t } = useLanguage();
+  
+  // Initialize speech APIs and companion
   useEffect(() => {
     // Check if SpeechRecognition is available
     if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognitionInstance = new SpeechRecognition();
+      const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+      const recognitionInstance = new SpeechRecognitionAPI();
       recognitionInstance.continuous = true;
       recognitionInstance.interimResults = true;
-      recognitionInstance.lang = 'en-US';
+      recognitionInstance.lang = language;
       
-      recognitionInstance.onresult = (event) => {
+      recognitionInstance.onresult = (event: any) => {
         const last = event.results.length - 1;
         const result = event.results[last];
         const transcript = result[0].transcript.trim().toLowerCase();
@@ -64,7 +70,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
         }
       };
       
-      recognitionInstance.onerror = (event) => {
+      recognitionInstance.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         toast.error('Speech recognition error. Please try again.');
@@ -78,6 +84,13 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     // Set up speech synthesis
     if ('speechSynthesis' in window) {
       setSpeechSynthesis(window.speechSynthesis);
+      
+      // Initialize VirtualCompanion
+      const newCompanion = new VirtualCompanion({
+        lang: language,
+        onMessage: (message) => console.log('Companion says:', message)
+      });
+      setCompanion(newCompanion);
     } else {
       toast.error('Speech synthesis is not supported in this browser');
     }
@@ -92,6 +105,16 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
       }
     };
   }, []);
+  
+  // Update recognition and companion language when language changes
+  useEffect(() => {
+    if (recognition) {
+      recognition.lang = language;
+    }
+    if (companion) {
+      companion.setLanguage(language);
+    }
+  }, [language, recognition, companion]);
   
   const startListening = useCallback(() => {
     if (recognition) {
@@ -115,13 +138,20 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
   }, [recognition]);
   
   const speak = useCallback((text: string, priority = false) => {
-    if (speechSynthesis) {
-      // If priority is true, cancel any ongoing speech
+    if (companion) {
+      companion.speak(text, language, priority);
+      setIsSpeaking(true);
+      // We'll rely on companion's onend event to update isSpeaking,
+      // but add a backup in case that fails
+      setTimeout(() => setIsSpeaking(false), 10000);
+    } else if (speechSynthesis) {
+      // Fallback to direct speech synthesis if companion isn't available
       if (priority) {
         speechSynthesis.cancel();
       }
       
       const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = language;
       utterance.rate = 1;
       utterance.pitch = 1;
       utterance.volume = 1;
@@ -135,17 +165,22 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
       
       speechSynthesis.speak(utterance);
     }
-  }, [speechSynthesis]);
+  }, [speechSynthesis, companion, language]);
   
   const processSpeech = useCallback((command: string) => {
-    console.log('Processing speech command:', command);
+    console.info('Processing speech command:', command);
+    
+    // First try to process with companion
+    if (companion && companion.processCommand(command)) {
+      return; // Command was handled by companion
+    }
     
     // Process wake word
     if (command.includes('hey path sense') || command.includes('hey pathsense')) {
       if (!isListening) {
         startListening();
       }
-      speak('How can I help you?');
+      speak(t('welcome'));
       return;
     }
     
@@ -163,11 +198,17 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     } else if (command.includes('stop listening')) {
       stopListening();
     }
-  }, [isListening, startListening, speak]);
+  }, [isListening, startListening, speak, t]);
   
   const startNavigation = useCallback(() => {
     setMode('navigating');
-    speak('Starting navigation mode. I will guide you through your surroundings.', true);
+    speak(t('startNavigation'), true);
+    
+    // Start companion mode
+    if (companion) {
+      companion.startCompanionMode();
+    }
+    
     // Request permission for camera if needed
     if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
@@ -176,24 +217,29 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
           toast.error('Could not access camera for navigation assistance');
         });
     }
-  }, [speak]);
+  }, [speak, companion, t]);
   
   const stopNavigation = useCallback(() => {
     if (mode !== 'idle') {
       setMode('idle');
       speak('Navigation stopped', true);
+      
+      // Stop companion mode
+      if (companion) {
+        companion.stopCompanionMode();
+      }
     }
-  }, [mode, speak]);
+  }, [mode, speak, companion]);
   
   const startTraining = useCallback(() => {
     setMode('training');
-    speak('Starting training mode. I will help you learn how to use this app effectively.', true);
-  }, [speak]);
+    speak(t('trainingMode'), true);
+  }, [speak, t]);
   
   const startRecording = useCallback(() => {
     setMode('recording');
-    speak('Recording route. Please describe the path as you walk.', true);
-  }, [speak]);
+    speak(t('recordRoute'), true);
+  }, [speak, t]);
   
   // Add event listener for wake word via tap (single tap anywhere on screen)
   useEffect(() => {
@@ -201,13 +247,13 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
       if (!isListening) {
         startListening();
         navigator.vibrate?.(100); // Provide haptic feedback if available
-        speak('How can I help you?');
+        speak(t('tapAnywhere'));
       }
     };
     
     document.addEventListener('click', handleTap);
     return () => document.removeEventListener('click', handleTap);
-  }, [isListening, startListening, speak]);
+  }, [isListening, startListening, speak, t]);
   
   return (
     <NavigationContext.Provider
@@ -224,6 +270,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
         stopListening,
         speak,
         processSpeech,
+        companion,
       }}
     >
       {children}

@@ -2,13 +2,15 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useNavigation } from '@/contexts/NavigationContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import CameraView from '@/components/CameraView';
 import StatusBar from '@/components/StatusBar';
 import VoiceTranscript from '@/components/VoiceTranscript';
 import { X, MapPin, Compass } from 'lucide-react';
 
 const Navigation: React.FC = () => {
-  const { mode, stopNavigation, speak } = useNavigation();
+  const { mode, stopNavigation, speak, companion } = useNavigation();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   
   // Redirect to home if not in navigation mode
@@ -17,13 +19,35 @@ const Navigation: React.FC = () => {
       navigate('/');
     } else {
       // Initial guidance when navigation starts
-      speak('Navigation started. I will guide you through your surroundings. Hold your phone up in front of you.');
+      speak(t('obstacleAhead'));
+      
+      // Start companion mode if available
+      if (companion) {
+        setTimeout(() => {
+          companion.startCompanionMode();
+        }, 5000);
+      }
     }
-  }, [mode, navigate, speak]);
+    
+    return () => {
+      // Clean up by stopping companion mode
+      if (companion) {
+        companion.stopCompanionMode();
+      }
+    };
+  }, [mode, navigate, speak, companion, t]);
   
   const handleStopNavigation = () => {
     stopNavigation();
     navigate('/');
+  };
+  
+  const triggerCompanionMessage = () => {
+    if (companion) {
+      companion.speakRandomMotivation();
+    } else {
+      speak(t('keepGoing'));
+    }
   };
   
   if (mode !== 'navigating') {
@@ -50,12 +74,24 @@ const Navigation: React.FC = () => {
             </div>
           </div>
           
-          {/* Distance indicator */}
+          {/* Distance indicator and companion interaction */}
           <div className="text-center p-6 pointer-events-auto">
-            <div className="inline-flex items-center bg-secondary/80 backdrop-blur-sm px-4 py-3 rounded-full mb-16">
+            <div 
+              className="inline-flex items-center bg-secondary/80 backdrop-blur-sm px-4 py-3 rounded-full mb-8"
+              onClick={triggerCompanionMessage}
+            >
               <MapPin className="mr-2 text-primary" size={24} />
               <span className="text-xl font-semibold">5 meters ahead</span>
             </div>
+            
+            {/* Companion trigger */}
+            <button
+              onClick={triggerCompanionMessage}
+              className="block w-full mb-8 p-3 bg-primary/20 border border-primary/30 rounded-lg text-center"
+              aria-label="Get companion message"
+            >
+              {t('keepGoing')}
+            </button>
           </div>
         </div>
       </div>
