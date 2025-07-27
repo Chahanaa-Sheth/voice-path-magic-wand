@@ -1,73 +1,31 @@
-# Welcome to your Lovable project
+# PathSense: Smart Mobility Assistant for the Visually Impaired
 
-## Project info
+PathSense is a mobile application designed to empower visually impaired individuals by enhancing their ability to navigate safely and independently. The app leverages voice guidance, real-time obstacle detection, and intelligent routing to create a seamless and assistive experience.
 
-**URL**: https://lovable.dev/projects/e7e57658-84e7-4d09-8bf7-8693f83f3cfb
+## Table of Contents
 
-## How can I edit this code?
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Installation](#installation)
 
-There are several ways of editing your application.
+## Features
 
-**Use Lovable**
+- **Voice-Controlled Navigation**: Allows users to give commands and receive instructions via voice.
+- **Obstacle Detection**: Alerts users about nearby obstacles using the device's camera and AI.
+- **Vibration Feedback**: Provides haptic feedback to indicate nearby hazards or directional shifts.
+- **Smart Routing**: Optimized paths with real-time updates for safe and accessible mobility.
+- **Emergency Assistance**: Quick-access SOS button to alert caregivers or emergency contacts.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/e7e57658-84e7-4d09-8bf7-8693f83f3cfb) and start prompting.
+## Tech Stack
 
-Changes made via Lovable will be committed automatically to this repo.
+- **Frontend**: TypeScript
+- **Backend**: Firebase (Authentication, Firestore)
+- **Computer Vision**: TensorFlow Lite, OpenCV (for obstacle detection)
+- **APIs**: Google Maps API, Text-to-Speech (TTS), Speech Recognition
 
-**Use your preferred IDE**
+## Installation
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/e7e57658-84e7-4d09-8bf7-8693f83f3cfb) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes it is!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/pathsense.git
+   cd pathsense
